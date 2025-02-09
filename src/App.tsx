@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPeopleRequest } from "./store/features/people/peopleSlice";
+import { RootState } from "./store";
+import { Box, Button } from "@mui/material";
+import AddPerson from "./components/AddPerson";
+import UpdatePerson from "./components/UpdatePerson";
+import AccordionItem from "./components/AccordionItem";
 
-function App() {
+const App: React.FC = () => {
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
+
+  const dispatch = useDispatch();
+  const people = useSelector((state: RootState) => state.people.people);
+
+  useEffect(() => {
+    dispatch(fetchPeopleRequest());
+  }, [dispatch]);
+
+  const parents = people.filter((p) => !p.firstParent && !p.secondParent);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <Box
+        sx={{ padding: 2, display: "flex", justifyContent: "space-between" }}
+      >
+        <Button variant="contained" onClick={() => setOpenAdd(true)}>
+          Add Person
+        </Button>
+        <Button variant="contained" onClick={() => setOpenUpdate(true)}>
+          Update Person
+        </Button>
+      </Box>
+
+      <Box sx={{ flexGrow: 1, padding: 2, backgroundColor: "#f5f5f5" }}>
+        {parents.map((parent) => (
+          <AccordionItem key={parent._id} id={parent._id} topLvlDiv={true} />
+        ))}
+      </Box>
+
+      <AddPerson handleClose={() => setOpenAdd(false)} openAdd={openAdd} />
+      <UpdatePerson
+        handleClose={() => setOpenUpdate(false)}
+        openUpdate={openUpdate}
+      />
+    </Box>
   );
-}
+};
 
 export default App;
